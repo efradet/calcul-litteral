@@ -82,3 +82,28 @@ test('les séries changent avec la graine et restent identiques pour une même g
   assert.equal(a, b);
   assert.notEqual(a, c);
 });
+
+import {cours} from '../src/content/cours.js';
+test('cours : 6 chapitres, exemples exacts ligne par ligne, exercice « À toi » juste, formules affichables', () => {
+  for (const ch of chapters) {
+    const blocks = cours[ch.id];
+    assert.ok(blocks && blocks.length > 10, `cours ${ch.id}`);
+    assert.ok(blocks.some(b => b.try), `cours ${ch.id} : exercice À toi`);
+    for (const b of blocks) {
+      if (b.p) renderText(b.p);
+      if (b.f !== undefined) tex(b.f);
+      if (b.tip) renderText(b.tip);
+      if (b.warn) b.warn.forEach(renderText);
+      if (b.method) b.method.list.forEach(renderText);
+      if (b.table) b.table.rows.flat().forEach(renderText);
+      if (b.ex) {
+        tex(latexOf(b.ex.prompt));
+        for (const s of b.ex.steps) {
+          if (s.src) { assert.ok(peq(polyOf(s.src), polyOf(b.ex.prompt)), `cours ${ch.id} ${b.ex.title}: ${s.src}`); tex(latexOf(s.src)); }
+          if (s.text) renderText(s.text);
+        }
+      }
+      if (b.try) checkExprItem({...b.try, kind: 'expr', id: `cours${ch.id}`});
+    }
+  }
+});
