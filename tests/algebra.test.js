@@ -51,3 +51,14 @@ test('aide au diagnostic', () => {
   assert.equal(st('', 'x', 'expanded'), 'empty');
   assert.equal(st('2x+', 'x', 'expanded'), 'error');
 });
+
+test('puissances : n’importe quel exposant entier', () => {
+  assert.equal(polyToSource(polyOf('x^10 - 3x^7 + x^4')), 'x^10 - 3x^7 + x^4');
+  assert.equal(polyToSource(polyOf('x^(12)')), 'x^12');
+  assert.equal(polyToSource(polyOf('x^5*x^6')), 'x^11');
+  assert.equal(polyToSource(polyOf('2^10')), '1024');
+  assert.equal(st('x^9', 'x^4*x^5', 'expanded'), 'right');
+  assert.equal(st('x^4*x^5', 'x^9', 'expanded'), 'form');
+  assert.throws(() => parse('x^'), /exposant/);
+  assert.throws(() => parse('x^99'), /maximum/);
+});

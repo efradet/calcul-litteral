@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {ArrowLeft, RefreshCw, RotateCcw, ChevronRight, ChevronDown, Timer, ClipboardCheck, BookMarked, GraduationCap} from 'lucide-react';
+import {ArrowLeft, RefreshCw, RotateCcw, ChevronRight, ChevronDown, Timer, ClipboardCheck, BookMarked, GraduationCap, BookOpenText} from 'lucide-react';
 import {chapters, LEVELS, buildSeries, buildMaster, itemCount} from '../content/index.js';
 import {Tex, MathText} from './Math.jsx';
 import {Item} from './Items.jsx';
@@ -22,12 +22,13 @@ function Exercise({ex, states, setItemState, exam, revealed}) {
   </section>;
 }
 
-function Rappel({chapter, open, onToggle}) {
+function Rappel({chapter, open, onToggle, go}) {
   return <aside className={`rappel${open ? ' open' : ''}`}>
     <button type="button" className="rappel-toggle" onClick={onToggle} aria-expanded={open}>
       <BookMarked size={17}/> Rappel {open ? <ChevronDown size={17}/> : <ChevronRight size={17}/>}
     </button>
     {open && <ul>{chapter.rappel.map((r, i) => <li key={i}>{r.tex && <Tex tex={r.tex}/>}<span>{r.text}</span></li>)}</ul>}
+    {open && <button type="button" className="rappel-cours" onClick={() => go(`/cours/${chapter.id}`)}><BookOpenText size={16}/> Je ne comprends pas : lire le cours complet</button>}
   </aside>;
 }
 
@@ -45,13 +46,14 @@ export function Home({store, go}) {
     <header className="home-head">
       <p className="kicker">11VG · Préparation au test</p>
       <h1>Calcul littéral</h1>
-      <p className="lead">Six chapitres, trois niveaux chacun, puis un test blanc. Écris tes réponses comme dans ton cahier : l’appli vérifie, donne un indice si tu bloques, et montre le corrigé détaillé.</p>
+      <p className="lead">Six chapitres, chacun avec un cours et trois niveaux d’exercices, puis un test blanc. Écris tes réponses comme dans ton cahier : l’appli vérifie, donne un indice si tu bloques, et montre le corrigé détaillé.</p>
     </header>
     <ol className="toc">
       {chapters.map(ch => <li key={ch.id} className={`toc-ch c${ch.id}`}>
         <div className="toc-title">
           <span className="ch-num">{ch.id}</span>
           <div><h2>{ch.title}</h2><p>{ch.subtitle}</p></div>
+          <button type="button" className="cours-btn" onClick={() => go(`/cours/${ch.id}`)}><BookOpenText size={16}/> Cours</button>
         </div>
         <div className="toc-levels">
           {LEVELS.map(l => {
@@ -98,13 +100,13 @@ export function SeriesPage({chapterId, level, store, setStore, go}) {
     <header className="page-head">
       <button type="button" className="back" onClick={() => go('/')}><ArrowLeft size={18}/> Sommaire</button>
       <p className="kicker">Chapitre {chapterId}</p>
-      <h1>{ch.title}</h1>
+      <div className="title-row"><h1>{ch.title}</h1><button type="button" className="cours-btn" onClick={() => go(`/cours/${chapterId}`)}><BookOpenText size={16}/> Cours</button></div>
       <nav className="level-tabs" aria-label="Niveaux">
         {LEVELS.map(l => <button key={l.n} type="button" className={l.n === level ? 'active' : ''} aria-current={l.n === level ? 'page' : undefined} onClick={() => go(`/c/${chapterId}/${l.n}`)}>{l.name}</button>)}
       </nav>
       <div className="progress-line"><span>{done} / {all.length} réussis</span><i style={{'--p': `${Math.round((done / all.length) * 100)}%`}}/></div>
     </header>
-    <Rappel chapter={ch} open={rappelOpen} onToggle={() => setRappelOpen(o => !o)}/>
+    <Rappel chapter={ch} open={rappelOpen} onToggle={() => setRappelOpen(o => !o)} go={go}/>
     {exercises.map(ex => <Exercise key={ex.number} ex={ex} states={answers} setItemState={setItemState}/>)}
     <footer className="series-foot">
       <button type="button" className="btn-secondary" onClick={renew}><RefreshCw size={17}/> Nouvelle série</button>

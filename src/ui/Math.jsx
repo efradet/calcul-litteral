@@ -20,5 +20,5 @@ export function Expr({src, className}) {
 // Texte avec formules {{...}}
 export function MathText({text, as: Tag = 'span', className}) {
   const parts = splitMath(text);
-  return <Tag className={className}>{parts.map((p, i) => (p.type === 'math' ? <Tex key={i} tex={p.value}/> : <React.Fragment key={i}>{p.value}</React.Fragment>))}</Tag>;
+  return <Tag className={className}>{parts.map((p, i) => (p.type === 'math' ? <Tex key={i} tex={p.value}/> : p.bold ? <strong key={i}>{p.value}</strong> : <React.Fragment key={i}>{p.value}</React.Fragment>))}</Tag>;
 }

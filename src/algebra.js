@@ -22,6 +22,9 @@ function decimalToQ(text) {
   return Q(parseInt(i + f, 10), d);
 }
 
+// Exposant maximal accepté à la saisie (au-delà, les calculs deviennent trop lourds pour être utiles)
+export const MAX_EXPONENT = 50;
+
 // ---------- Erreurs de lecture ----------
 export class ParseError extends Error {
   constructor(message, pos) { super(message); this.pos = pos; }
@@ -114,10 +117,14 @@ export function parse(src) {
     const base = parseAtom();
     if (peek() && peek().t === '^') {
       const caret = next();
-      const e = next();
-      if (!e || e.t !== 'num' || e.v.includes('.')) throw new ParseError('L’exposant doit être un nombre entier.', caret.pos);
+      // exposant : un entier, éventuellement entre parenthèses (x^10, x^(10))
+      let e = next();
+      const paren = e && e.t === '(';
+      if (paren) e = next();
+      if (!e || e.t !== 'num' || e.v.includes('.')) throw new ParseError('Après ^, écris l’exposant : un nombre entier (par exemple x^4 ou x^10).', caret.pos);
+      if (paren) { const c = next(); if (!c || c.t !== ')') throw new ParseError('Il manque une parenthèse fermante après l’exposant.', caret.pos); }
       const exp = parseInt(e.v, 10);
-      if (exp > 12) throw new ParseError('Exposant trop grand.', e.pos);
+      if (exp > MAX_EXPONENT) throw new ParseError(`Exposant trop grand (maximum ${MAX_EXPONENT}).`, e.pos);
       return {type: 'pow', base, exp};
     }
     return base;

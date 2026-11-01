@@ -70,8 +70,7 @@ export function ExprItem({item, state, setState, exam, revealed}) {
       <span className={`mark${result ? ` ${result.status}` : ''}`} aria-hidden="true">{solved ? <Check size={20}/> : result && result.status !== 'empty' && result.status !== 'error' ? (result.status === 'form' ? '~' : <X size={18}/>) : ''}</span>
     </div>
     <div className="answer-zone">
-      {item.prompt && !item.text && !item.promptTex && <span className="equals">=</span>}
-      <MathInput value={value} onChange={v => update({value: v, result: exam ? undefined : st.result && v === value ? st.result : undefined})} onSubmit={exam ? undefined : check} disabled={exam && revealed} unit={item.unit} letters={letters.length ? letters : undefined} ariaLabel={`Réponse ${item.label || ''}`}/>
+      <MathInput prefix={item.prompt && !item.text && !item.promptTex ? '=' : null} value={value} onChange={v => update({value: v, result: exam ? undefined : st.result && v === value ? st.result : undefined})} onSubmit={exam ? undefined : check} disabled={exam && revealed} unit={item.unit} letters={letters.length ? letters : undefined} ariaLabel={`Réponse ${item.label || ''}`}/>
     </div>
     {!exam && <ToolRow canCheck={!!value.trim()} onCheck={check} onHint={() => update({hint: !st.hint})} onSolution={() => update({solution: !st.solution})} hintShown={st.hint} solutionShown={st.solution} onDraft={() => update({draftOpen: !st.draftOpen})} draftShown={st.draftOpen}/>}
     {!exam && st.draftOpen && <textarea className="draft" rows={4} value={st.draft || ''} onChange={e => update({draft: e.target.value})} placeholder="Brouillon : écris tes étapes ici (rien n’est corrigé)." spellCheck={false}/>}
